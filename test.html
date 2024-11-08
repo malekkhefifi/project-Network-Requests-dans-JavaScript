@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link rel="stylesheet" href="styless.css">
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false">
+            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <!-- Section d'erreur cachée par défaut -->
+        <div class="error" style="display: none;">
+            <p>Invalid city name</p>
+        </div>
+
+        <div class="weather" style="display: none;">
+            <img src="image/img1.png" class="weather-icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">New York</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="image/hum.png" class="weather-icon">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="image/Wind Speed.png" class="weather-icon">
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "9816d31018ffe3b6b158c5130c272d38";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+        const weatherIcon = document.querySelector(".weather-icon");
+
+        // Fonction qui vérifie la météo
+        async function checkWeather(city) {
+            try {
+                // Requête à l'API
+                const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+
+                if (response.status == 404) {
+                    // Affichage de l'erreur si la ville n'est pas trouvée
+                    document.querySelector(".error").style.display = "block";
+                    document.querySelector(".weather").style.display = "none";
+                    return; // Arrêter l'exécution de la fonction si la ville est invalide
+                }
+
+                // Si la réponse est correcte, traiter les données
+                const data = await response.json();
+
+                // Mise à jour de la météo
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+                // Changer l'icône en fonction de la météo
+                if (data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "image/img1.png";
+                } else if (data.weather[0].main == "Clear") {
+                    weatherIcon.src = "image/img.png";
+                } else if (data.weather[0].main == "Rain") {
+                    weatherIcon.src = "image/ne9.png";
+                } else if (data.weather[0].main == "Drizzle") {
+                    weatherIcon.src = "image/n.png";
+                } else if (data.weather[0].main == "Mist") {
+                    weatherIcon.src = "image/1146869.png";
+                }
+
+                // Afficher la section météo et cacher l'erreur
+                document.querySelector(".error").style.display = "none";
+                document.querySelector(".weather").style.display = "block";
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+                alert("Something went wrong!");
+            }
+        }
+
+        // Ajouter l'événement click pour rechercher la météo
+        searchBtn.addEventListener("click", () => {
+            const city = searchBox.value.trim();
+            if (city) {
+                checkWeather(city); // Appeler la fonction avec le nom de la ville
+            } else {
+                alert("Please enter a city name.");
+            }
+        });
+    </script>
+
+</body>
+
+</html>
